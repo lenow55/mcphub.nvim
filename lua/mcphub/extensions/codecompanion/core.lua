@@ -113,12 +113,11 @@ local function add_tool_output(
     local formatted_name = opts.format_tool and opts.format_tool(display_name, tool) or display_name
 
     if has_function_calling then
-        chat:add_tool_output(
-            tool,
-            text,
-            (user_msg or show_result_in_chat or is_error) and (user_msg or text)
-                or string.format("**`%s` Tool**: Successfully finished", formatted_name)
-        )
+        chat:add_tool_output(tool, {
+            content = text,
+            display = (user_msg or show_result_in_chat or is_error) and (user_msg or text)
+                or string.format("**`%s` Tool**: Successfully finished", formatted_name),
+        })
         for _, image in ipairs(images) do
             chat:add_image_message(image)
         end
