@@ -78,6 +78,18 @@ function M.validate_server_config(name, config)
     local has_stdio = config.command ~= nil
     local has_sse = config.url ~= nil
 
+    -- Validate description type
+    if config.description ~= nil and type(config.description) ~= "string" then
+        return {
+            ok = false,
+            error = Error(
+                "VALIDATION",
+                Error.Types.SETUP.INVALID_CONFIG,
+                string.format("Server '%s' has invalid description: must be a string", name)
+            ),
+        }
+    end
+
     -- Check for mixed fields
     if has_stdio and has_sse then
         return {

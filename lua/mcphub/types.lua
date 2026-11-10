@@ -35,6 +35,7 @@
 ---@field disabled? string
 
 ---@class CustomMCPServerConfig
+---@field description? string Custom description for the server; when set, it is used as the CodeCompanion tool group description instead of the auto-generated one
 ---@field disabled? boolean
 ---@field disabled_tools? string[]
 ---@field disabled_prompts? string[]

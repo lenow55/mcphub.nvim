@@ -233,8 +233,9 @@ function M.register(opts)
     local groups = tools.groups or {}
 
     -- Get servers and process in one go
+    local prompt_utils = require("mcphub.utils.prompt")
     local servers = hub:get_servers()
-    local server_tools = {} -- Map safe_server_name -> {tool_names, server_name}
+    local server_tools = {} -- Map safe_server_name -> {tool_names, server_name, description}
     local used_safe_names = {}
     local skipped_tools = {}
     local skipped_groups = {}
@@ -263,7 +264,11 @@ function M.register(opts)
             goto continue
         end
 
-        server_tools[safe_name] = { tool_names = {}, server_name = server.name }
+        server_tools[safe_name] = {
+            tool_names = {},
+            server_name = server.name,
+            description = server.custom_description or "",
+        }
 
         -- Create individual tools for this server
         if server.capabilities and server.capabilities.tools then
@@ -309,10 +314,10 @@ function M.register(opts)
     end
 
     -- Create server groups
-    local prompt_utils = require("mcphub.utils.prompt")
     for safe_server_name, server_data in pairs(server_tools) do
         local tool_names = server_data.tool_names
         local server_name = server_data.server_name
+        local custom_description = server_data.description
 
         -- Only create group if it has tools and no conflict
         if #tool_names > 0 then
@@ -324,10 +329,12 @@ function M.register(opts)
                     "\n\n### Instructions for " .. safe_server_name .. " tools\n\n"
                 )
 
+                -- A custom description from the servers.json config fully replaces
+                -- the auto-generated "All tools from <server> MCP server" description
                 groups[safe_server_name] = {
                     id = "mcp_dynamic:" .. safe_server_name,
                     hide_in_help_window = true,
-                    description = string.format(
+                    description = custom_description ~= "" and custom_description or string.format(
                         " All tools from `%s` MCP server: \n\n%s",
                         server_name,
                         table.concat(

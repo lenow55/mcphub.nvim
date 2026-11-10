@@ -1389,6 +1389,15 @@ local function filter_server_capabilities(server)
     local config = config_manager.get_server_config(server) or {}
     local filtered_server = vim.deepcopy(server)
 
+    -- Propagate the custom description from the config file.
+    -- It overrides the backend description and is also stored in `custom_description`
+    -- so downstream consumers can tell it apart from the backend-provided one.
+    local config_description = config.description
+    if type(config_description) == "string" and config_description ~= "" then
+        filtered_server.description = config_description
+        filtered_server.custom_description = config_description
+    end
+
     if filtered_server.capabilities then
         -- Common function to filter capabilities
         local function filter_capabilities(capabilities, disabled_list, id_field)
